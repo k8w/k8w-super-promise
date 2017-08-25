@@ -1,0 +1,24 @@
+{
+  "name": "k8w-super-promise",
+  "version": "0.1.0",
+  "description": "Promise with cancel and always",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "build": "rm -rf dist && tsc -d && cp package.json dist/ && rm dist/test/*.d.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/k8w/k8w-super-promise.git"
+  },
+  "keywords": [
+    "k8w"
+  ],
+  "author": "k8w",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/mocha": "^2.2.41",
+    "@types/node": "^8.0.23"
+  },
+  "typings": "index.d.ts"
+}
