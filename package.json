@@ -1,11 +1,11 @@
 {
   "name": "k8w-super-promise",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Promise with cancel and always",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "build": "rm -rf dist && tsc -d && cp package.json dist/ && rm dist/test/*.d.ts"
+    "build": "rm -rf dist && tsc -d && cp package.json LICENSE README.md dist/ && rm dist/test/*.d.ts"
   },
   "repository": {
     "type": "git",
