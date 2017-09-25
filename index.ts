@@ -1,4 +1,4 @@
-export default class SuperPromise<T>{
+export default class SuperPromise<T> implements PromiseLike<T>{
     private _promise: Promise<any>;
     private _isDone: boolean = false;
     private _isCanceled: boolean = false;
