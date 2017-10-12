@@ -1,8 +1,8 @@
 export default class SuperPromise<T, TError extends Error = Error> implements PromiseLike<T>{
     private _promise: Promise<any>;
     private _promiseRj: Function;
-    private _isDone: boolean = false;
-    private _isCanceled: boolean = false;
+    isDone: boolean = false;
+    isCanceled: boolean = false;
     private _alwaysFunc: (() => void)[] = [];
     private _catchFunc: (() => void)[] = [];
 
@@ -13,11 +13,11 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
             //重新定义resolve
             let resolve = (value: T) => {
                 //Cancelable
-                if (this._isCanceled) {
+                if (this.isCanceled) {
                     return;
                 }
 
-                this._isDone = true;
+                this.isDone = true;
 
                 //Always Call
                 this._alwaysFunc.forEach(v => { v.call(this) });
@@ -27,11 +27,11 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
             //重新定义reject
             let reject = (err: TError) => {
                 //Cancelable
-                if (this._isCanceled) {
+                if (this.isCanceled) {
                     return;
                 }
 
-                this._isDone = true;
+                this.isDone = true;
 
                 //Always Call
                 this._alwaysFunc.forEach(v => { v.call(this) });
@@ -47,22 +47,14 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
         });
     }
 
-    public get isCanceled(): boolean {
-        return this._isCanceled;
-    }
-
-    public get isDone(): boolean {
-        return this._isDone;
-    }
-
     onCancel: () => void;
     cancel() {
-        if (this._isCanceled) {
+        if (this.isCanceled) {
             return;
         }
 
         //cancel handler
-        this._isCanceled = true;
+        this.isCanceled = true;
         this.onCancel && this.onCancel();
 
         //Prevent UnhandledPromiseRejection
@@ -77,10 +69,10 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
     }
 
     always(func: () => void): this {
-        if (this._isCanceled) {
+        if (this.isCanceled) {
             //Do nothing
         }
-        else if (this._isDone) {
+        else if (this.isDone) {
             func.call(this);
         }
         else {
@@ -94,7 +86,7 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
     then<TResult>(onfulfilled: (value: T) => TResult | PromiseLike<TResult>, onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): SuperPromise<TResult>;
     then<TResult1, TResult2>(onfulfilled: (value: T) => TResult1 | PromiseLike<TResult1>, onrejected: (reason: any) => TResult2 | PromiseLike<TResult2>): SuperPromise<TResult1 | TResult2>;
     then(onfulfilled: any, onrejected: any) {
-        if (!this._isCanceled) {
+        if (!this.isCanceled) {
             this._promise = this._promise.then(onfulfilled, onrejected);
         }
         return this;
@@ -103,10 +95,10 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
     catch(onrejected?: (err: TError) => any): SuperPromise<any>;
     catch<TResult>(onrejected: (err: TError) => TResult | PromiseLike<TResult>): SuperPromise<TResult>;
     catch(onrejected: any) {
-        if (this._isCanceled) {
+        if (this.isCanceled) {
             //Do nothing
         }
-        else if (this._isDone) {
+        else if (this.isDone) {
             this._promise = this._promise.catch(onrejected);
         }
         else {
