@@ -5,6 +5,7 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
     isCanceled: boolean = false;
     private _alwaysFunc: (() => void)[] = [];
     private _catchFunc: (() => void)[] = [];
+    private _cancelFunc?: (() => void)[];
 
     constructor(executor: (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void) {
         this._promise = new Promise<T>((rs, rj) => {
@@ -22,7 +23,10 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
                 //Always Call
                 this._alwaysFunc.forEach(v => { v.call(this) });
 
-                return rs(value);
+                rs(value);
+
+                //clear memory
+                this._catchFunc && delete this._catchFunc;
             }
             //重新定义reject
             let reject = (err: TError) => {
@@ -41,31 +45,63 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
                     this._promise = this._promise.catch(func);
                 }
 
-                return rj(err);
+                rj(err);
+
+                //clear memory
+                this._catchFunc && delete this._catchFunc;
             }
             executor(resolve, reject);
         });
     }
 
-    onCancel: () => void;
-    cancel() {
+    /**
+     * add cancel listener
+     * @param handler 
+     */
+    onCancel(handler: () => void): this {
+        if (this._cancelFunc) {
+            this._cancelFunc.push(handler);
+        }
+        else {
+            this._cancelFunc = [handler];
+        }
+        return this;
+    }
+
+    /**
+     * 立即取消该Promise
+     * 如果取消成功或之前已经取消，则返回true
+     * 如果取消失败（已经resolve或reject），则返回false
+     */
+    cancel(): boolean {
+        if (this.isDone) {
+            return false;
+        }
+
         if (this.isCanceled) {
-            return;
+            return true;
         }
 
         //cancel handler
         this.isCanceled = true;
-        this.onCancel && this.onCancel();
+        if (this._cancelFunc) {
+            for (let func of this._cancelFunc) {
+                func();
+            }
+            delete this._cancelFunc;
+        }
 
         //Prevent UnhandledPromiseRejection
         this._promise = this._promise.catch(() => { });
-        this._promiseRj();  
+        this._promiseRj();
 
         //clear memory
         delete this._promiseRj;
         delete this._promise;
         delete this._catchFunc;
         delete this._alwaysFunc;
+
+        return true;
     }
 
     always(func: () => void): this {
@@ -116,11 +152,11 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
             })
         });
 
-        output.onCancel = function () {
+        output.onCancel(function () {
             promises.forEach(promise => {
                 promise.cancel();
             })
-        };
+        })
 
         return output;
     }

@@ -88,9 +88,10 @@ describe('SuperPromise', function () {
         })
     })
 
-    it('cancel (delay)', function () {
+    it('cancel (delay)', function (done) {
+        let canceled = false;
         //resolve
-        new SuperPromise((rs, rj) => {
+        let p = new SuperPromise((rs, rj) => {
             setTimeout(() => {
                 rs()
             }, 10)
@@ -100,10 +101,14 @@ describe('SuperPromise', function () {
             assert.fail('should not run here (canceled)')
         }).catch(() => {
             assert.fail('should not run here (canceled)')
-        }).cancel();
+        }).onCancel(() => {
+            canceled = true;
+        });
+        assert.equal(p.cancel(), true)
 
         //reject
-        new SuperPromise((rs, rj) => {
+        let canceled1 = false;
+        p = new SuperPromise((rs, rj) => {
             setTimeout(() => {
                 rj()
             }, 10)
@@ -113,34 +118,64 @@ describe('SuperPromise', function () {
             assert.fail('should not run here (canceled)')
         }).catch(() => {
             assert.fail('should not run here (canceled)')
-        }).cancel();
+        }).onCancel(() => {
+            canceled1 = true;
+        });
+        p.cancel();
+        assert.equal(p.cancel(), true)
+
+        setTimeout(() => {
+            assert.equal(canceled, true)
+            assert.equal(canceled1, true)
+            done();
+        }, 20)
     })
 
-    it('cancel (no delay)', function () {
+    it('cancel (no delay)', function (done) {
+        let canceled = false, canceled1 = false;
+
         //resolve
         let p = new SuperPromise((rs, rj) => {
             rs()
         });
-        p.cancel();
+        let a1 = false, t1 = false;
+        p.onCancel(() => {
+            canceled = true;
+        });
+        assert.equal(p.cancel(), false);
         p.always(() => {
-            assert.fail('should not run here (canceled)')
+            a1 = true;
         }).then(() => {
-            assert.fail('should not run here (canceled)')
+            t1 = true;
         }).catch(() => {
             assert.fail('should not run here (canceled)')
         }).cancel();
 
         //reject
+        let a2 = false, c2 = false;
         p = new SuperPromise((rs, rj) => {
             rj()
         });
-        p.cancel();
+        p.onCancel(() => {
+            canceled1 = true;
+        });
+        assert.equal(p.cancel(), false);
         p.always(() => {
-            assert.fail('should not run here (canceled)')
+            a2 = true;
         }).then(() => {
             assert.fail('should not run here (canceled)')
         }).catch(() => {
-            assert.fail('should not run here (canceled)')
+            c2 = true;
         }).cancel();
+
+        setTimeout(() => {
+            assert.equal(a1, true);
+            assert.equal(t1, true);
+            assert.equal(a2, true);
+            assert.equal(c2, true);
+            assert.equal(canceled, false);
+            assert.equal(canceled1, false);
+            done();
+        }, 0)
     })
 })
