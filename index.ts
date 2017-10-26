@@ -26,7 +26,9 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
                 rs(value);
 
                 //clear memory
-                this._catchFunc && delete this._catchFunc;
+                this._catchFunc = undefined as any;
+                this._cancelFunc = undefined as any;
+                this._alwaysFunc = undefined as any;
             }
             //重新定义reject
             let reject = (err: TError) => {
@@ -48,7 +50,9 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
                 rj(err);
 
                 //clear memory
-                this._catchFunc && delete this._catchFunc;
+                this._catchFunc = undefined as any;
+                this._cancelFunc = undefined as any;
+                this._alwaysFunc = undefined as any;
             }
             executor(resolve, reject);
         });
@@ -88,7 +92,7 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
             for (let func of this._cancelFunc) {
                 func();
             }
-            delete this._cancelFunc;
+            this._cancelFunc = undefined;
         }
 
         //Prevent UnhandledPromiseRejection
@@ -96,10 +100,10 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
         this._promiseRj();
 
         //clear memory
-        delete this._promiseRj;
-        delete this._promise;
-        delete this._catchFunc;
-        delete this._alwaysFunc;
+        this._promiseRj = undefined as any;
+        this._promise = undefined as any;
+        this._catchFunc = undefined as any;
+        this._alwaysFunc = undefined as any;
 
         return true;
     }
