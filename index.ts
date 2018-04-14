@@ -1,10 +1,9 @@
 export default class SuperPromise<T, TError extends Error = Error> implements PromiseLike<T>{
     private _promise: Promise<any>;
-    private _promiseRj: Function;
+    private _promiseRj!: Function;
     isDone: boolean = false;
     isCanceled: boolean = false;
     private _alwaysFunc: (() => void)[] = [];
-    private _catchFunc: (() => void)[] = [];
     private _cancelFunc?: (() => void)[];
 
     constructor(executor: (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void) {
@@ -12,7 +11,7 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
             this._promiseRj = rj;
 
             //重新定义resolve
-            let resolve = (value: T) => {
+            let resolve = (value?: T | PromiseLike<T>) => {
                 //Cancelable
                 if (this.isCanceled) {
                     return;
@@ -26,7 +25,6 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
                 rs(value);
 
                 //clear memory
-                this._catchFunc = undefined as any;
                 this._cancelFunc = undefined as any;
                 this._alwaysFunc = undefined as any;
             }
@@ -42,15 +40,9 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
                 //Always Call
                 this._alwaysFunc.forEach(v => { v.call(this) });
 
-                //Catch
-                for (let func of this._catchFunc) {
-                    this._promise = this._promise.catch(func);
-                }
-
                 rj(err);
 
                 //clear memory
-                this._catchFunc = undefined as any;
                 this._cancelFunc = undefined as any;
                 this._alwaysFunc = undefined as any;
             }
@@ -102,7 +94,6 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
         //clear memory
         this._promiseRj = undefined as any;
         this._promise = undefined as any;
-        this._catchFunc = undefined as any;
         this._alwaysFunc = undefined as any;
 
         return true;
@@ -135,14 +126,8 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
     catch(onrejected?: (err: TError) => any): SuperPromise<any>;
     catch<TResult>(onrejected: (err: TError) => TResult | PromiseLike<TResult>): SuperPromise<TResult>;
     catch(onrejected: any) {
-        if (this.isCanceled) {
-            //Do nothing
-        }
-        else if (this.isDone) {
+        if (!this.isCanceled) {
             this._promise = this._promise.catch(onrejected);
-        }
-        else {
-            this._catchFunc.push(onrejected);
         }
         return this;
     }

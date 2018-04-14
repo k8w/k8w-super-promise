@@ -178,4 +178,18 @@ describe('SuperPromise', function () {
             done();
         }, 0)
     })
+
+    it('await and catch', async function () {
+        let value = await (new SuperPromise((rs, rj) => {
+            setTimeout(() => {
+                console.log('doing')
+                rj('66666')
+            }, 20);
+        }).catch(e => {
+            console.log('catched', e);
+            return '666';
+        }))
+        
+        assert.equal(value, '666')
+    })
 })
