@@ -110,7 +110,7 @@ describe('SuperPromise', function () {
         let canceled1 = false;
         p = new SuperPromise((rs, rj) => {
             setTimeout(() => {
-                rj()
+                rj(new Error('x'))
             }, 10)
         }).always(() => {
             assert.fail('should not run here (canceled)')
@@ -136,7 +136,7 @@ describe('SuperPromise', function () {
 
         //resolve
         let p = new SuperPromise((rs, rj) => {
-            rs()
+            rs(new Error('x'))
         });
         let a1 = false, t1 = false;
         p.onCancel(() => {
@@ -154,7 +154,7 @@ describe('SuperPromise', function () {
         //reject
         let a2 = false, c2 = false;
         p = new SuperPromise((rs, rj) => {
-            rj()
+            rj(new Error('x'))
         });
         p.onCancel(() => {
             canceled1 = true;
@@ -189,7 +189,43 @@ describe('SuperPromise', function () {
             console.log('catched', e);
             return '666';
         }))
-        
+
         assert.equal(value, '666')
+    })
+
+    it('Can only rs 1 time', async function () {
+        let n = 0;
+        await (new SuperPromise<number>(rs => {
+            setTimeout(() => {
+                rs(1);
+            }, 0);
+            setTimeout(() => {
+                rs(1);
+            }, 100);
+            setTimeout(() => {
+                rs(1);
+            }, 200);
+        })).then(v => {
+            n += v;
+        });
+        assert.equal(n, 1);
+    })
+
+    it('Can only rj 1 time', async function () {
+        let n = 0;
+        await (new SuperPromise<number>((rs, rj) => {
+            setTimeout(() => {
+                rj(1);
+            }, 0);
+            setTimeout(() => {
+                rj(1);
+            }, 100);
+            setTimeout(() => {
+                rj(1);
+            }, 200);
+        })).catch(v => {
+            n += v as any as number;
+        });
+        assert.equal(n, 1);
     })
 })

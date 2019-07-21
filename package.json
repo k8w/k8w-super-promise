@@ -1,6 +1,6 @@
 {
   "name": "k8w-super-promise",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Promise with cancel and always",
   "main": "index.js",
   "scripts": {
