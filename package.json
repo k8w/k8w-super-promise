@@ -1,10 +1,10 @@
 {
   "name": "k8w-super-promise",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Promise with cancel and always",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha test/**/*.test.ts",
     "build": "rm -rf dist && tsc -d && cp package.json LICENSE README.md dist/ && rm dist/test/*.d.ts"
   },
   "repository": {
@@ -18,7 +18,10 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/mocha": "^2.2.41",
-    "@types/node": "^8.0.23"
+    "@types/node": "^8.0.23",
+    "mocha": "^6.2.2",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.4"
   },
   "typings": "index.d.ts"
 }

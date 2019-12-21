@@ -113,9 +113,9 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
     }
 
     then(onfulfilled?: ((value: T) => T | PromiseLike<T>) | undefined | null, onrejected?: ((reason: any) => T | PromiseLike<T>) | undefined | null): SuperPromise<T>;
-    then<TResult>(onfulfilled: ((value: T) => T | PromiseLike<T>) | undefined | null, onrejected: (reason: any) => TResult | PromiseLike<TResult>): SuperPromise<T | TResult>;
-    then<TResult>(onfulfilled: (value: T) => TResult | PromiseLike<TResult>, onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): SuperPromise<TResult>;
-    then<TResult1, TResult2>(onfulfilled: (value: T) => TResult1 | PromiseLike<TResult1>, onrejected: (reason: any) => TResult2 | PromiseLike<TResult2>): SuperPromise<TResult1 | TResult2>;
+    then<TResult, TE extends Error = TError>(onfulfilled: ((value: T) => T | PromiseLike<T>) | undefined | null, onrejected: (reason: any) => TResult | PromiseLike<TResult>): SuperPromise<T | TResult, TE>;
+    then<TResult, TE extends Error = TError>(onfulfilled: (value: T) => TResult | PromiseLike<TResult>, onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): SuperPromise<TResult, TE>;
+    then<TResult1, TResult2, TE extends Error = TError>(onfulfilled: (value: T) => TResult1 | PromiseLike<TResult1>, onrejected: (reason: any) => TResult2 | PromiseLike<TResult2>): SuperPromise<TResult1 | TResult2, TE>;
     then(onfulfilled: any, onrejected: any) {
         if (!this.isCanceled) {
             this._promise = this._promise.then(onfulfilled, onrejected);
@@ -123,8 +123,8 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
         return this;
     }
 
-    catch(onrejected?: (err: TError) => any): SuperPromise<any>;
-    catch<TResult>(onrejected: (err: TError) => TResult | PromiseLike<TResult>): SuperPromise<TResult>;
+    catch(onrejected?: (err: TError) => any): SuperPromise<any, TError>;
+    catch<TResult, TE extends Error = TError>(onrejected: (err: TError) => TResult | PromiseLike<TResult>): SuperPromise<TResult, TE>;
     catch(onrejected: any) {
         if (!this.isCanceled) {
             this._promise = this._promise.catch(onrejected);
@@ -132,8 +132,8 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
         return this;
     }
 
-    static all<T>(promises: SuperPromise<T>[]): SuperPromise<T[]> {
-        let output = new SuperPromise<T[]>((rs, rj) => {
+    static all<T, TE extends Error = Error>(promises: SuperPromise<T>[]): SuperPromise<T[], TE> {
+        let output = new SuperPromise<T[], TE>((rs, rj) => {
             Promise.all(promises).then(result => {
                 rs(result);
             }).catch(err => {
