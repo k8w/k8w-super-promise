@@ -112,7 +112,7 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
         return this;
     }
 
-    then(onfulfilled?: ((value: T) => T | PromiseLike<T>) | undefined | null, onrejected?: ((reason: any) => T | PromiseLike<T>) | undefined | null): SuperPromise<T>;
+    then(onfulfilled?: ((value: T) => T | PromiseLike<T>) | undefined | null, onrejected?: ((reason: any) => T | PromiseLike<T>) | undefined | null): SuperPromise<T, TError>;
     then<TResult, TE extends Error = TError>(onfulfilled: ((value: T) => T | PromiseLike<T>) | undefined | null, onrejected: (reason: any) => TResult | PromiseLike<TResult>): SuperPromise<T | TResult, TE>;
     then<TResult, TE extends Error = TError>(onfulfilled: (value: T) => TResult | PromiseLike<TResult>, onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): SuperPromise<TResult, TE>;
     then<TResult1, TResult2, TE extends Error = TError>(onfulfilled: (value: T) => TResult1 | PromiseLike<TResult1>, onrejected: (reason: any) => TResult2 | PromiseLike<TResult2>): SuperPromise<TResult1 | TResult2, TE>;
