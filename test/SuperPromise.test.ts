@@ -228,4 +228,29 @@ describe('SuperPromise', function () {
         });
         assert.equal(n, 1);
     })
+
+    it('memory leak', async function () {
+        global.gc();
+        let usage = process.memoryUsage();
+
+        for (let i = 0; i < 1000000; ++i) {
+            let pm = new SuperPromise<any>((rs, rj) => {
+                setTimeout(() => {
+
+                }, 1000)
+            });
+            pm.onCancel(() => { });
+            setTimeout(() => {
+                pm.cancel();
+            }, 500)
+        }
+        await new Promise(rs => {
+            setTimeout(rs, 1500);
+        });
+
+        global.gc();
+        let usage1 = process.memoryUsage();
+        console.log(usage, usage1);
+        assert.ok(usage1.heapUsed - usage.heapUsed <= 10);
+    })
 })

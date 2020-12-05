@@ -1,6 +1,6 @@
 export default class SuperPromise<T, TError extends Error = Error> implements PromiseLike<T>{
     private _promise: Promise<any>;
-    private _promiseRj!: Function;
+    private _promiseRj?: Function;
     isDone: boolean = false;
     isCanceled: boolean = false;
     private _alwaysFunc: (() => void)[] = [];
@@ -45,6 +45,7 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
                 //clear memory
                 this._cancelFunc = undefined as any;
                 this._alwaysFunc = undefined as any;
+                this._promiseRj = undefined;
             }
             executor(resolve, reject);
         });
@@ -87,12 +88,8 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
             this._cancelFunc = undefined;
         }
 
-        //Prevent UnhandledPromiseRejection
-        this._promise = this._promise.catch(() => { });
-        this._promiseRj();
-
         //clear memory
-        this._promiseRj = undefined as any;
+        this._promiseRj = undefined;
         this._promise = undefined as any;
         this._alwaysFunc = undefined as any;
 
