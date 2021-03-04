@@ -1,11 +1,12 @@
 {
   "name": "k8w-super-promise",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Promise with cancel and always",
   "main": "index.js",
+  "exports": "./index.mjs",
   "scripts": {
-    "test": "mocha test/**/*.test.ts",
-    "build": "rm -rf dist && tsc -d && cp package.json LICENSE README.md dist/ && rm dist/test/*.d.ts"
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha",
+    "build": "rm -rf dist && npx tsc -m esnext -d && mv dist/index.js dist/index.mjs && npx tsc && cp package.json LICENSE README.md dist/ && rm dist/test/*.d.ts"
   },
   "repository": {
     "type": "git",
@@ -19,9 +20,9 @@
   "devDependencies": {
     "@types/mocha": "^2.2.41",
     "@types/node": "^8.0.23",
-    "mocha": "^6.2.2",
+    "mocha": "^8.3.0",
     "ts-node": "^8.5.4",
-    "typescript": "^3.7.4"
+    "typescript": "^4.2.2"
   },
   "typings": "index.d.ts"
 }

@@ -6,12 +6,12 @@ export default class SuperPromise<T, TError extends Error = Error> implements Pr
     private _alwaysFunc: (() => void)[] = [];
     private _cancelFunc?: (() => void)[];
 
-    constructor(executor: (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason: any) => void) => void) {
+    constructor(executor: (resolve: (value: T | PromiseLike<T>) => void, reject: (reason: any) => void) => void) {
         this._promise = new Promise<T>((rs, rj) => {
             this._promiseRj = rj;
 
             //重新定义resolve
-            let resolve = (value?: T | PromiseLike<T>) => {
+            let resolve = (value: T | PromiseLike<T>) => {
                 //Cancelable
                 if (this.isCanceled || this.isDone) {
                     return;

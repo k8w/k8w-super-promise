@@ -91,7 +91,7 @@ describe('SuperPromise', function () {
     it('cancel (delay)', function (done) {
         let canceled = false;
         //resolve
-        let p = new SuperPromise((rs, rj) => {
+        let p = new SuperPromise<void>((rs, rj) => {
             setTimeout(() => {
                 rs()
             }, 10)

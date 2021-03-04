@@ -1,0 +1,9 @@
+{
+    "extension": [
+        "ts"
+    ],
+    "spec": "test/**/*.test.ts",
+    "require": "ts-node/register",
+    "timeout": 9999,
+    "expose-gc": true
+}
