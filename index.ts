@@ -3,7 +3,7 @@
  * email: me@k8w.io
  */
 
-export default class SuperPromise<T, TError extends Error = Error> implements PromiseLike<T>{
+export class SuperPromise<T, TError extends Error = Error> implements PromiseLike<T>{
     private _promise: Promise<any>;
     private _promiseRj?: Function;
     isDone: boolean = false;
