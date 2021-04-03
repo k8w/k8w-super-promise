@@ -1,4 +1,4 @@
-import SuperPromise from '../index';
+import {SuperPromise} from '../src/index';
 import * as assert from 'assert';
 describe('SuperPromise', function () {
     it('then', function (done) {
