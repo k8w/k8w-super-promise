@@ -3,17 +3,11 @@
  * email: me@k8w.io
  */
 
-if (typeof Symbol === 'undefined') {
-    Symbol = {
-        toStringTag: 'Symbol.toStringTag' as any as symbol
-    } as any;
-}
+import 'core-js/es/promise/finally';
 
 export class SuperPromise<T, TError = never> implements Promise<T>{
 
-    get [Symbol.toStringTag]() {
-        return 'SuperPromise';
-    }
+    readonly [Symbol.toStringTag] = 'SuperPromise';
 
     protected _promise: Promise<any>;
 
@@ -80,18 +74,7 @@ export class SuperPromise<T, TError = never> implements Promise<T>{
     }
 
     finally(onfinally?: (() => void) | undefined | null): SuperPromise<T> {
-        if (this._promise.finally !== undefined) {
-            this._promise = this._promise.finally(onfinally);
-        }
-        else {
-            this._promise = this._promise.then(v => {
-                onfinally?.();
-                return v;
-            }).catch(e => {
-                onfinally?.();
-                throw e;
-            })
-        }
+        this._promise = this._promise.finally(onfinally);
         return this as SuperPromise<any>;
     }
 }
